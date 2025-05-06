@@ -99,11 +99,9 @@ layout_mode = 2
 [node name="Gear" type="Label" parent="ArcadeDemo/GUI/VBoxContainer"]
 layout_mode = 2
 
-[node name="Camera3D" type="Camera3D" parent="ArcadeDemo" node_paths=PackedStringArray("follow_this")]
+[node name="Camera3D" type="Camera3D" parent="ArcadeDemo"]
 transform = Transform3D(1, 0, 0, 0, 0.989776, 0.142629, 0, -0.142629, 0.989776, 4.05282, 1.58316, 5.80061)
 script = ExtResource("10_j4qnp")
-follow_height = 3
-follow_this = NodePath("../VehicleController/VehicleRigidBody")
 
 [node name="Debug" type="Node" parent="ArcadeDemo" node_paths=PackedStringArray("vehicle")]
 script = ExtResource("11_fpfj3")

@@ -2,6 +2,9 @@ extends CharacterBody3D
 
 class_name Monster
 
+@export var look_speed := 5.0
+
+
 # Export variables for tweaking in the editor
 @export var chase_speed: float = 15.0
 @export var roaming_speed: float = 5.0
@@ -44,6 +47,7 @@ enum MonsterState {
 var current_state = MonsterState.ROAMING
 
 func _ready() -> void:
+
 	rng.randomize()
 	
 	# Connect signals
@@ -271,14 +275,14 @@ func play_animation(anim_name: String) -> void:
 			if current_state == MonsterState.ATTACKING:
 				current_state = MonsterState.CHASING
 
-func look_at_smoothly(target_pos: Vector3, delta: float) -> void:
-	# Smooth rotation toward target
-	var current_rotation = global_transform.basis.get_euler()
-	var target_rotation = global_transform.looking_at(target_pos, Vector3.UP).basis.get_euler()
-	
-	# Interpolate rotation
-	var smoothed_rotation = current_rotation.lerp(target_rotation, 5.0 * delta)
-	global_transform.basis = Basis.from_euler(smoothed_rotation)
+func look_at_smoothly(target: Vector3, delta: float):
+	if global_transform.origin.is_equal_approx(target):
+		return
+
+	var target_flat = target
+	target_flat.y = global_transform.origin.y  # Ignore Y so it doesn't look down
+	var new_transform = global_transform.looking_at(target_flat, Vector3.UP)
+	global_transform = global_transform.interpolate_with(new_transform, delta * look_speed)
 
 func _on_detection_area_body_entered(body) -> void:
 	if body.is_in_group("player_car"):

@@ -4,6 +4,11 @@
 class_name Vehicle
 extends RigidBody3D
 
+@export var max_health: int = 100
+var current_health: int
+
+
+
 @export_group("Wheel Nodes")
 ## Assign this to the Wheel [RayCast3D] that is this vehicle's front left wheel.
 @export var front_left_wheel : Wheel
@@ -423,7 +428,22 @@ class Axle:
 
 func _ready():
 	initialize()
+	
+	current_health = max_health
+	if not is_in_group("player_car"):
+		add_to_group("player_car")
 
+func take_damage(amount: float) -> void:
+	current_health -= amount
+	print("Vehicle took ", amount, " damage. Current health: ", current_health)
+
+	if current_health <= 0:
+		die()
+
+func die():
+	print("Vehicle destroyed! Game Over.")
+	# You could trigger an animation, emit a signal, or change the scene here
+	queue_free()
 func _integrate_forces(state : PhysicsDirectBodyState3D):
 	current_gravity = state.total_gravity
 
