@@ -12,7 +12,8 @@ extends Camera3D
 var is_looking_back := false
 var current_distance := 5.0  # Initialize to avoid potential null references
 
-@onready var monster: Monster = $"../Monster"
+@onready var monster: CharacterBody3D = $"../BigZombie"
+
 
 func _physics_process(delta : float):
 	if not follow_this or not monster:
