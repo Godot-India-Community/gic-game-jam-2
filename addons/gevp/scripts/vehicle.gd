@@ -4,10 +4,27 @@
 class_name Vehicle
 extends RigidBody3D
 
-@export var max_health: int = 100
-var current_health: int
+# Health and damage properties
+var max_health = 5
+var current_health = 5
+var player_score = 0
+var is_game_over = false
 
 
+# Signals
+signal player_damaged(health_remaining)
+signal game_over
+
+# Knockback properties
+var knockback_force = 2000
+var knockback_upward_force = 5.0
+var recovery_time = 1.0
+var can_take_damage = true
+var knockback_timer = 0.0
+
+# Sound effects (add these to your scene)
+@onready var damage_sound = $DamageSound
+@onready var game_over_sound = $GameOverSound
 
 @export_group("Wheel Nodes")
 ## Assign this to the Wheel [RayCast3D] that is this vehicle's front left wheel.
@@ -426,6 +443,7 @@ class Axle:
 			slip = maxf(slip, wheel.slip_vector.y)
 		return slip
 
+
 func _ready():
 	initialize()
 	
@@ -433,12 +451,122 @@ func _ready():
 	if not is_in_group("player_car"):
 		add_to_group("player_car")
 
-func take_damage(amount: float) -> void:
+func _process(delta):
+	# Handle knockback recovery timer
+	if knockback_timer > 0:
+		knockback_timer -= delta
+		if knockback_timer <= 0:
+			can_take_damage = true
+			
+# Add this function to your vehicle script to handle damage from zombie attacks
+func damage(amount):
+	if is_game_over or !can_take_damage:
+		return
+		
+	# Apply damage
 	current_health -= amount
-	print("Vehicle took ", amount, " damage. Current health: ", current_health)
-
+	
+	# Emit signal for UI updates
+	emit_signal("player_damaged", current_health)
+	
+	# Play damage sound
+	if damage_sound:
+		damage_sound.play()
+	
+	# Apply knockback from the direction of the last zombie attack
+	apply_knockback()
+	
+	# Start immunity timer
+	can_take_damage = false
+	knockback_timer = recovery_time
+	
+	# Check for game over
 	if current_health <= 0:
-		die()
+		trigger_game_over()
+# Apply knockback force
+
+func apply_knockback():
+	# Get direction from the nearest zombie (or use -transform.basis.z for backward direction)
+	var nearest_zombie = find_nearest_zombie()
+	var direction = Vector3.ZERO
+	
+	if nearest_zombie:
+		# Direction from zombie to player
+		direction = (global_position - nearest_zombie.global_position).normalized()
+	else:
+		# If no zombie found, knockback in the opposite direction the car is facing
+		direction = -transform.basis.z.normalized()
+	
+	# Add upward component to make the car jump slightly
+	direction.y = knockback_upward_force
+	
+	# Apply impulse at the vehicle's center
+	apply_central_impulse(direction * knockback_force)
+	
+	# Optional: Add some torque for rotation effect
+	apply_torque_impulse(Vector3(randf_range(-1, 1), randf_range(-0.5, 0.5), randf_range(-1, 1)) * knockback_force * 0.5)
+
+# Find the nearest zombie in the scene
+func find_nearest_zombie():
+	var zombies = get_tree().get_nodes_in_group("zombies")
+	var nearest = null
+	var min_distance = INF
+	
+	for zombie in zombies:
+		var distance = global_position.distance_to(zombie.global_position)
+		if distance < min_distance:
+			min_distance = distance
+			nearest = zombie
+	
+	return nearest
+	
+# Trigger game over state
+func trigger_game_over():
+	if is_game_over:
+		return
+		
+	is_game_over = true
+	
+	# Play game over sound
+	if game_over_sound:
+		game_over_sound.play()
+	
+	# Emit game over signal
+	emit_signal("game_over")
+	
+	# Optional: Disable vehicle controls
+	# disable_controls()
+	
+	# Optional: Add dramatic effect (flip car, explosion, etc.)
+	apply_central_impulse(Vector3(0, 15, 0))
+	apply_torque_impulse(Vector3(randf_range(-5, 5), randf_range(-5, 5), randf_range(-5, 5)) * 10)
+
+# Add score when killing zombies
+func add_score(points):
+	player_score += points
+	# Optional: emit signal for UI updates
+	# emit_signal("score_updated", player_score)
+
+func disable_controls():
+	# Implement based on your control system
+	pass
+	
+func reset_game():
+	current_health = max_health
+	player_score = 0
+	is_game_over = false
+	can_take_damage = true
+	knockback_timer = 0.0
+	
+	# Reset physics
+	linear_velocity = Vector3.ZERO
+	angular_velocity = Vector3.ZERO
+	
+	# Optional: reset position
+	# global_transform = original_transform
+	
+	# Emit signal for UI updates
+	emit_signal("player_damaged", current_health)
 
 func die():
 	print("Vehicle destroyed! Game Over.")

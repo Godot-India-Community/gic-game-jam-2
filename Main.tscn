@@ -1,17 +1,10 @@
-[gd_scene load_steps=17 format=3 uid="uid://ce3qblkweskyt"]
+[gd_scene load_steps=10 format=3 uid="uid://ce3qblkweskyt"]
 
 [ext_resource type="PackedScene" uid="uid://bky21dcotavfu" path="res://Scenes/city.tscn" id="2_c6kft"]
 [ext_resource type="PackedScene" uid="uid://d0a4cnabnxklw" path="res://Scenes/holder_sm_veh.tscn" id="3_fkpcv"]
 [ext_resource type="PackedScene" uid="uid://bkvnsyab5eni6" path="res://Scenes/holder_sm_env.tscn" id="4_cl7rb"]
 [ext_resource type="PackedScene" uid="uid://c6shbnyst8nrv" path="res://Scenes/Holder_SM_Props.tscn" id="5_7fqfh"]
-[ext_resource type="PackedScene" uid="uid://fo6kt54q87tf" path="res://addons/gevp/scenes/arcade_car.tscn" id="6_3dxm6"]
-[ext_resource type="PackedScene" uid="uid://c3ixqkc6k13yi" path="res://addons/gevp/scenes/vehicle_controller.tscn" id="6_5vvyt"]
 [ext_resource type="PackedScene" uid="uid://27ev4qfbrww6" path="res://PreFabScenes/Env/City_sm_env_skyline_01.tscn" id="7_3v3da"]
-[ext_resource type="PackedScene" uid="uid://b2hlchrj4h2b7" path="res://addons/gevp/scenes/engine_sound.tscn" id="8_c6i3y"]
-[ext_resource type="Script" uid="uid://o22i1dsw78tr" path="res://addons/gevp/scripts/gui.gd" id="9_c2ibq"]
-[ext_resource type="Script" uid="uid://bp7aae6g4y1cx" path="res://addons/gevp/scripts/camera.gd" id="10_j4qnp"]
-[ext_resource type="Script" uid="uid://dw84c2u62fsil" path="res://addons/gevp/scripts/debug.gd" id="11_fpfj3"]
-[ext_resource type="Script" uid="uid://ceist53nbjjg7" path="res://addons/gevp/scripts/debug_ui.gd" id="12_sc1dx"]
 [ext_resource type="PackedScene" uid="uid://dinlmfnb2fcdm" path="res://fire/particle_flipbook_smoothing.tscn" id="13_c6i3y"]
 
 [sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_fos0i"]
@@ -54,70 +47,6 @@ shadow_enabled = true
 transform = Transform3D(0.845946, 0.408507, -0.342778, 3.72529e-07, 0.642787, 0.766045, 0.533268, -0.648033, 0.543763, 0, 3, 0)
 light_color = Color(1, 0.956863, 0.839216, 1)
 light_energy = 0.2
-
-[node name="ArcadeDemo" type="Node3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -6.41176)
-
-[node name="VehicleController" parent="ArcadeDemo" node_paths=PackedStringArray("vehicle_node") instance=ExtResource("6_5vvyt")]
-vehicle_node = NodePath("VehicleRigidBody")
-
-[node name="VehicleRigidBody" parent="ArcadeDemo/VehicleController" instance=ExtResource("6_3dxm6")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.926611, 0)
-center_of_mass_mode = 1
-linear_damp_mode = 1
-angular_damp_mode = 1
-
-[node name="EngineSound" parent="ArcadeDemo/VehicleController/VehicleRigidBody" node_paths=PackedStringArray("vehicle") instance=ExtResource("8_c6i3y")]
-max_db = -24.0
-vehicle = NodePath("..")
-
-[node name="GUI" type="Control" parent="ArcadeDemo" node_paths=PackedStringArray("vehicle")]
-visible = false
-layout_mode = 3
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
-script = ExtResource("9_c2ibq")
-vehicle = NodePath("../VehicleController/VehicleRigidBody")
-
-[node name="VBoxContainer" type="VBoxContainer" parent="ArcadeDemo/GUI"]
-layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
-
-[node name="Speed" type="Label" parent="ArcadeDemo/GUI/VBoxContainer"]
-layout_mode = 2
-
-[node name="RPM" type="Label" parent="ArcadeDemo/GUI/VBoxContainer"]
-layout_mode = 2
-
-[node name="Gear" type="Label" parent="ArcadeDemo/GUI/VBoxContainer"]
-layout_mode = 2
-
-[node name="Camera3D" type="Camera3D" parent="ArcadeDemo"]
-transform = Transform3D(1, 0, 0, 0, 0.989776, 0.142629, 0, -0.142629, 0.989776, 4.05282, 1.58316, 5.80061)
-script = ExtResource("10_j4qnp")
-
-[node name="Debug" type="Node" parent="ArcadeDemo" node_paths=PackedStringArray("vehicle")]
-script = ExtResource("11_fpfj3")
-vehicle = NodePath("../VehicleController/VehicleRigidBody")
-show_debug = false
-
-[node name="DebugUI" type="Control" parent="ArcadeDemo/Debug"]
-visible = false
-layout_mode = 3
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
-script = ExtResource("12_sc1dx")
-metadata/_edit_use_anchors_ = true
 
 [node name="Node3D" parent="." instance=ExtResource("13_c6i3y")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.87093, 1.50634, -27.4082)

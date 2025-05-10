@@ -1,6 +1,6 @@
 [gd_scene load_steps=9 format=3 uid="uid://h6vdpba71kpr"]
 
-[ext_resource type="Script" path="res://addons/gevp/scripts/wheel_smoke.gd" id="1_3e4qh"]
+[ext_resource type="Script" uid="uid://ct3ipeps3mdue" path="res://addons/gevp/scripts/wheel_smoke.gd" id="1_3e4qh"]
 
 [sub_resource type="Gradient" id="Gradient_wywko"]
 offsets = PackedFloat32Array(0, 0.772152, 1)

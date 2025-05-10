@@ -157,15 +157,59 @@ func process_forces(opposite_compression : float, braking : bool, delta : float)
 		last_collider = get_collider()
 		last_collision_point = get_collision_point()
 		last_collision_normal = get_collision_normal()
-		var surface_groups : Array[StringName] = last_collider.get_groups()
-		if surface_groups.size() > 0:
-			if surface_type != surface_groups[0]:
-				surface_type = surface_groups[0]
-				current_cof = coefficient_of_friction[surface_type]
-				current_rolling_resistance = rolling_resistance[surface_type]
-				current_lateral_grip_assist = lateral_grip_assist[surface_type]
-				current_longitudinal_grip_ratio = longitudinal_grip_ratio[surface_type]
-				current_tire_stiffness = 1000000.0 + 8000000.0 * tire_stiffnesses[surface_type]
+		
+		# Check if the collider is a zombie first (special case)
+		if last_collider is CharacterBody3D and last_collider.is_in_group("zombies"):
+			# Handle zombie collision specifically
+			surface_type = "zombies"  # Create a special surface type for zombies
+			
+			# Set zombie-specific parameters (customize these values)
+			current_cof = 0.7  # Higher friction when hitting zombies
+			current_rolling_resistance = 2.0  # More resistance
+			current_lateral_grip_assist = 0.5  # Less lateral grip when hitting zombies
+			current_longitudinal_grip_ratio = 0.5  # Less forward grip
+			current_tire_stiffness = 5000000.0  # Medium stiffness
+			
+			# Optional: Apply damage to zombie when run over
+			if last_collider.has_method("damage"):
+				last_collider.damage(10)  # Damage zombie when running over it
+		else:
+			# Normal surface handling
+			var surface_groups : Array[StringName] = []
+			
+			# Safely get groups - check if the method exists first
+			if last_collider.has_method("get_groups"):
+				surface_groups = last_collider.get_groups()
+			
+			if surface_groups.size() > 0:
+				if surface_type != surface_groups[0]:
+					surface_type = surface_groups[0]
+					
+					# Use default values if the surface type isn't found in dictionaries
+					if coefficient_of_friction.has(surface_type):
+						current_cof = coefficient_of_friction[surface_type]
+					else:
+						current_cof = 0.5  # Default friction
+						
+					if rolling_resistance.has(surface_type):
+						current_rolling_resistance = rolling_resistance[surface_type]
+					else:
+						current_rolling_resistance = 0.1  # Default rolling resistance
+						
+					if lateral_grip_assist.has(surface_type):
+						current_lateral_grip_assist = lateral_grip_assist[surface_type]
+					else:
+						current_lateral_grip_assist = 0.5  # Default lateral grip
+						
+					if longitudinal_grip_ratio.has(surface_type):
+						current_longitudinal_grip_ratio = longitudinal_grip_ratio[surface_type]
+					else:
+						current_longitudinal_grip_ratio = 1.0  # Default longitudinal grip
+						
+					if tire_stiffnesses.has(surface_type):
+						current_tire_stiffness = 1000000.0 + 8000000.0 * tire_stiffnesses[surface_type]
+					else:
+						current_tire_stiffness = 5000000.0  # Default tire stiffness
 	else:
 		last_collider = null
 	
